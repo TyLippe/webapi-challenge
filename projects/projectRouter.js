@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const Project = require('./projectModel.js');
-
+const Action = require('../actions/actionModel.js')
 
 //Get all projects (WORKING)
 router.get('/', async (req, res) => {
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 
 //Get project by ID (WOEKING/ SHOWS PROJECT_ID AS WELL)
 router.get('/:id', validateProjectId, async (req, res) => {
-    const { id } = req.params;
+    const id = req.project.id;
 
     try {
         const projectById = await Project.get(id)
@@ -41,13 +41,48 @@ router.post('/', validateProject, async (req, res) => {
         res.status(201).json(newProject)
     }
     catch (err) { 
-        res.status(500).json({ errorMessage: 'There was an error while add the new project!' })
+        res.status(500).json({ errorMessage: 'There was an error while adding a new project.' })
+    }
+});
+
+//Post a new action to a project (ERROR 500)
+router.post('/:id/actions', validateProjectId, validateAction, async (req, res) => {
+    const action = {
+        description: req.body.description,
+        notes: req.body.notes
+    }
+    const id = req.project.id;
+    console.log(action, id)
+
+    try {
+        const newAction = await Action.insert({action, project_id:id})
+        res.status(201).json(newAction)
+    }
+    catch (err) {
+        res.status(500).json({ errorMessage: 'There was an error while saving the new action to the database.' })
+    }
+});
+
+//Get action by ID (?WORKING)
+router.get('/:id/actions', validateActionId, async (req, res) => {
+    const id = req.action.id;
+    
+    try {
+        const action = await Action.get(id)
+            if(action) {
+                res.status(200).json(action);
+            } else {
+                res.status(404).json({ errorMessage: 'The action with the specified ID does not exist.' })
+            }
+    }
+    catch (err) {
+        res.status(500).json({ errorMessage: 'This action could not be retrieved.' })
     }
 });
 
 //Delete a project (WORKING)
 router.delete('/:id', validateProjectId, async (req, res) => {
-    const id = req.params.id;
+    const id = req.project.id;
 
     try {
         const deleted = await Project.remove(id);
@@ -65,7 +100,7 @@ router.delete('/:id', validateProjectId, async (req, res) => {
 router.put('/:id', validateProjectId, validateProject, async (req, res) => {
     try {
         const project = req.body
-        const newProjectID = req.params.id
+        const newProjectID = req.project.id
         await Project.update(newProjectID, project)
 
         const updatedProject = await Project.get(newProjectID)
@@ -106,5 +141,34 @@ function validateProject(req,res, next) {
         next()
     }
 }
+
+function validateAction(req, res, next) {
+    if (!req.body) {
+        res.status(400).json({ message: 'missing user data' })
+    } else if (!req.body.description) {
+        res.status(400).json({ message: 'missing required description field' })
+    } else if (!req.body.notes) {
+        res.status(400).json({ message: 'missing required notes field' })
+    } else {
+        next()
+    }
+};
+
+function validateActionId(req, res, next) {
+    const id = req.params.id;
+
+    Action.get(id)
+        .then(action => {
+            if(action) {
+                req.action = action;
+                next();
+            } else {
+                res.status(400).json({ message: 'invalid action id' })
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'action with that id could not be retieved' })
+        })
+};
 
 module.exports = router;

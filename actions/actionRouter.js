@@ -4,77 +4,45 @@ const router = express.Router();
 
 const Action = require('./actionModel.js');
 
-//Post a new action
-router.post('/', async (req, res) => {
-    const userName = req.body;
-    console.log(userName)
-    
-    try {
-        const name = await User.insert(userName);
-        res.status(201).json(name)
-    }
-    catch (err) { 
-        res.status(500).json({ errorMessage: 'There was an error while add the new user!' })
-    }
-});
-
-//Get all actions
+//Get all actions (WORKING)
 router.get('/', async (req, res) => {
     try {
-        const users = await User.get();
-        res.status(200).json(users)
+        const actions = await Action.get();
+        res.status(200).json(actions)
     }
     catch (err) {
-        res.status(500).json({ errorMessage: 'The users information could not be retrived.' })
+        res.status(500).json({ errorMessage: 'The actions could not be retrived.' })
     }
 });
-
-//Get action by ID
-router.get('/:id', async (req, res) => {
-    const id = req.user.id;
-    
-    try {
-        const user = await User.getById(id)
-            if(user) {
-                res.status(200).json(user);
-            } else {
-                res.status(404).json({ errorMessage: 'The user with the specified ID does not exist.' })
-            }
-    }
-    catch (err) {
-        res.status(500).json({ errorMessage: 'The user information could not be retrieved.' })
-    }
-});
-
 
 //Delete an action
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateActionId, async (req, res) => {
     const id = req.user.id;
 
     try {
-        const deleted = await User.remove(id);
+        const deleted = await Action.remove(id);
             if(deleted) {
-                res.status(200).json({ message: 'User was deleted.' }) 
+                res.status(200).json({ message: 'Action was deleted.' }) 
             }   else {
-                res.status(400).json({ errorMessage: 'User with that ID could not be deleted' })
+                res.status(400).json({ errorMessage: 'Action with that ID could not be deleted' })
             }
     } catch (err) {
-        res.status(500).json({ errorMessage: 'The user could not be remvoed.' })
+        res.status(500).json({ errorMessage: 'This action could not be remvoed.' })
     }
 });
 
 //Update an action
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateAction, validateActionId, async (req, res) => {
     try {
-        const userName = req.body
-        const newUserId = req.user.id
-        await User.update(newUserId, userName)
+        const update = req.body
+        const newActionId = req.action.id
+        await Action.update(newActionId, update)
 
-        const updatedUser = await User.getById(newUserId)
-        res.status(201).json(updatedUser)
+        const updatedAction = await User.getById(newActionId)
+        res.status(201).json(updatedAction)
     }
     catch (err) {
-        res.status(500).json({ errorMessage: 'The user could not be updated.' })
+        res.status(500).json({ errorMessage: 'This action could not be updated.' })
     }
 });
 
@@ -83,25 +51,27 @@ router.put('/:id', async (req, res) => {
 function validateActionId(req, res, next) {
     const id = req.params.id;
 
-    Action.getById(id)
+    Action.get(id)
         .then(action => {
             if(action) {
                 req.action = action;
                 next();
             } else {
-                res.status(400).json({ message: 'invalid user id' })
+                res.status(400).json({ message: 'invalid action id' })
             }
         })
         .catch(err => {
-            res.status(500).json({ message: 'user could not be retieved' })
+            res.status(500).json({ message: 'action could not be retieved' })
         })
 };
 
 function validateAction(req, res, next) {
     if (!req.body) {
         res.status(400).json({ message: 'missing user data' })
-    } else if (!req.body.name) {
-        res.status(400).json({ message: 'missing required name field' })
+    } else if (!req.body.description) {
+        res.status(400).json({ message: 'missing required description field' })
+    } else if (!req.body.notes) {
+        res.status(400).json({ message: 'missing required notes field' })
     } else {
         next()
     }
