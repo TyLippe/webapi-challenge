@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-//Get project by ID (WOEKING/ SHOWS PROJECT_ID AS WELL)
+//Get project by ID (WORKING/ SHOWS PROJECT_ID AS WELL)
 router.get('/:id', validateProjectId, async (req, res) => {
     const id = req.project.id;
 
@@ -45,7 +45,7 @@ router.post('/', validateProject, async (req, res) => {
     }
 });
 
-//Post a new action to a project (ERROR 500)
+//Post a new action to a project (WORKING)
 router.post('/:id/actions', validateProjectId, validateAction, async (req, res) => {
     const action = {
         description: req.body.description,
@@ -55,7 +55,7 @@ router.post('/:id/actions', validateProjectId, validateAction, async (req, res) 
     console.log(action, id)
 
     try {
-        const newAction = await Action.insert({action, project_id:id})
+        const newAction = await Action.insert({ ...action, project_id:id })
         res.status(201).json(newAction)
     }
     catch (err) {
@@ -63,7 +63,7 @@ router.post('/:id/actions', validateProjectId, validateAction, async (req, res) 
     }
 });
 
-//Get action by ID (?WORKING)
+//Get action by ID (WORKING)
 router.get('/:id/actions', validateActionId, async (req, res) => {
     const id = req.action.id;
     

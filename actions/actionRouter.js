@@ -15,9 +15,9 @@ router.get('/', async (req, res) => {
     }
 });
 
-//Delete an action
+//Delete an action (WORKING)
 router.delete('/:id', validateActionId, async (req, res) => {
-    const id = req.user.id;
+    const id = req.action.id;
 
     try {
         const deleted = await Action.remove(id);
@@ -31,14 +31,14 @@ router.delete('/:id', validateActionId, async (req, res) => {
     }
 });
 
-//Update an action
+//Update an action (WORKING)
 router.put('/:id', validateAction, validateActionId, async (req, res) => {
     try {
         const update = req.body
         const newActionId = req.action.id
         await Action.update(newActionId, update)
 
-        const updatedAction = await User.getById(newActionId)
+        const updatedAction = await Action.get(newActionId)
         res.status(201).json(updatedAction)
     }
     catch (err) {
