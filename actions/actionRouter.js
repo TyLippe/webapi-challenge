@@ -2,11 +2,10 @@ const express = require('express');
 
 const router = express.Router();
 
-const User = require('./userDb.js');
-const Post = require('../posts/postDb.js');
+const Action = require('./actionDb.js');
 
-//Post a new user
-router.post('/', validateUser, async (req, res) => {
+//Post a new action
+router.post('/', async (req, res) => {
     const userName = req.body;
     console.log(userName)
     
@@ -19,22 +18,7 @@ router.post('/', validateUser, async (req, res) => {
     }
 });
 
-//Post a comment on a specific user
-router.post('/:id/posts', validateUserId, validatePost, async (req, res) => {
-    const id = req.user.id;
-    const text = req.body.text;
-    console.log(text, id)
-
-    try {
-        const newPost = await Post.insert({text, user_id:id})
-        res.status(201).json(newPost)
-    }
-    catch (err) {
-        res.status(500).json({ errorMessage: 'There was an error while saving the post to the database.' })
-    }
-});
-
-//Get all users
+//Get all actions
 router.get('/', async (req, res) => {
     try {
         const users = await User.get();
@@ -45,8 +29,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-//Get user by ID
-router.get('/:id', validateUserId, async (req, res) => {
+//Get action by ID
+router.get('/:id', async (req, res) => {
     const id = req.user.id;
     
     try {
@@ -62,24 +46,9 @@ router.get('/:id', validateUserId, async (req, res) => {
     }
 });
 
-//Get post by ID
-router.get('/:id/posts', validateUserId, async (req, res) => {
-    const id = req.user.id;
 
-    try {
-        const post = await User.getUserPosts(id)
-            if(post && post.length > 0) {
-                res.status(200).json(post)
-            } else {
-                res.status(404).json({ errorMessage: 'The post with the specified user ID does not exist.' })
-            }
-    } catch (err) {
-        res.status(500).json({ errorMessage: 'The posts information could not be retrieved.' })
-    }
-});
-
-//Delete a user
-router.delete('/:id', validateUserId, async (req, res) => {
+//Delete an action
+router.delete('/:id', async (req, res) => {
     const id = req.user.id;
 
     try {
@@ -94,10 +63,8 @@ router.delete('/:id', validateUserId, async (req, res) => {
     }
 });
 
-//Update a user
-router.put('/:id', validateUserId, validateUser, async (req, res) => {
-    
-    
+//Update an action
+router.put('/:id', async (req, res) => {
     try {
         const userName = req.body
         const newUserId = req.user.id
@@ -113,7 +80,7 @@ router.put('/:id', validateUserId, validateUser, async (req, res) => {
 
 //custom middleware
 
-function validateUserId(req, res, next) {
+function validateActionId(req, res, next) {
     const id = req.params.id;
 
     User.getById(id)
@@ -130,7 +97,7 @@ function validateUserId(req, res, next) {
         })
 };
 
-function validateUser(req, res, next) {
+function validateAction(req, res, next) {
     if (!req.body) {
         res.status(400).json({ message: 'missing user data' })
     } else if (!req.body.name) {
@@ -139,15 +106,5 @@ function validateUser(req, res, next) {
         next()
     }
 };
-
-function validatePost(req,res, next) {
-    if(!req.body) {
-        res.status(404).json({ errorMessage: 'missing post data' })
-    } else if (!req.body.text) {
-        res.status(400).json({ errorMessage: 'missing required text field' })
-    } else {
-        next()
-    }
-}
 
 module.exports = router;

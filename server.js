@@ -13,13 +13,13 @@ server.use("/api/project", projectRouter);
 
 
 server.get('/', logger, (req, res) => {
-  res.send(`<h2>SPRINT DAY!</h2>`)
+    res.send(`<h2>SPRINT DAY!</h2>`)
 });
 
 
 function logger(req, res, next) {
-  console.log(`${req.method} Request`);
-  next();
+    console.log(`${req.method} Request`);
+    next();
 }
 
 module.exports = server;
