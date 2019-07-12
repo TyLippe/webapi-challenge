@@ -9,7 +9,7 @@ server.use(helmet());
 server.use(logger);
 
 server.use("/api/actions", actionRouter);
-server.use("/api/project", projectRouter);
+server.use("/api/projects", projectRouter);
 
 
 server.get('/', logger, (req, res) => {

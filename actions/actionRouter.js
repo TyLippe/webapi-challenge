@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const Action = require('./actionDb.js');
+const Action = require('./actionModel.js');
 
 //Post a new action
 router.post('/', async (req, res) => {
@@ -83,10 +83,10 @@ router.put('/:id', async (req, res) => {
 function validateActionId(req, res, next) {
     const id = req.params.id;
 
-    User.getById(id)
-        .then(user => {
-            if(user) {
-                req.user = user;
+    Action.getById(id)
+        .then(action => {
+            if(action) {
+                req.action = action;
                 next();
             } else {
                 res.status(400).json({ message: 'invalid user id' })
