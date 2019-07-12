@@ -28,13 +28,13 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
     We learned about Express router and using middleware.
 
 - [x] Describe Middleware?
-    Middleware is function that we can call before we run our endpoint function, for example these can be used as a validator to check that everything is correct before the endpoint is ran. 
+    Middleware is function that intercepts our request before our endpoint function, for example these can be used as a validator to check that everything is correct before the endpoint is ran. 
 
 - [x] Describe a Resource?
-    A resource is any type of data that we give the database.
+    A resource is any type of data that is transmitted between the server and the client.
 
 - [x] What can the API return to help clients know if a request was successful?
-    The API can return a message, I had mine set up so that if the user was deleted or a new user was added, you would see a success message.
+    The API can return a response, I had mine set up so that if the user was deleted or a new user was added, the user would see a response.
 
 - [x] How can we partition our application into sub-applications?
     We can use router in order to have seperate workspaces for specific data, that way we can have more specific functions and less on a page.
